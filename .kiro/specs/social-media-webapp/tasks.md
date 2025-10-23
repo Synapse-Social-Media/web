@@ -431,7 +431,11 @@
   - Add message request filtering
   - _Requirements: 9.2, 9.5_
 
-- [ ] 10.3 Add Account Management
+- [x] 10.3 Add Account Management
+
+
+
+
 
   - Create account deactivation and deletion flows
   - Implement data export functionality
