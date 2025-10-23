@@ -36,8 +36,8 @@ export function AppShell({ children }: AppShellProps) {
         />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
-          <div className="container mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <main className="flex-1 overflow-y-auto pb-16 lg:pb-0 safe-area-inset-bottom">
+          <div className="container mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl px-responsive py-responsive mobile-text-adjust">
             {children}
           </div>
         </main>

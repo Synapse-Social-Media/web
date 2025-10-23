@@ -66,17 +66,17 @@ export function Sidebar() {
     const { userProfile } = useAuth()
 
     return (
-        <div className="flex h-full w-64 sm:w-72 flex-col border-r bg-card">
+        <div className="flex h-full w-64 tablet-sidebar-width desktop-sidebar-width flex-col border-r bg-card safe-area-inset-left">
             {/* Logo/Brand */}
-            <div className="flex h-14 sm:h-16 items-center border-b px-4 sm:px-6">
-                <Link href="/" className="flex items-center space-x-2">
-                    <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-primary" />
-                    <span className="text-lg sm:text-xl font-bold">Social</span>
+            <div className="flex h-14 sm:h-16 items-center border-b px-responsive safe-area-inset-top">
+                <Link href="/" className="flex items-center space-responsive-x touch-target">
+                    <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-primary flex-shrink-0" />
+                    <span className="text-responsive-lg font-bold truncate">Social</span>
                 </Link>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 space-y-1 p-3 sm:p-4">
+            <nav className="flex-1 space-y-1 p-responsive">
                 {navigationItems.map((item) => {
                     const isActive = pathname === item.href
                     return (
@@ -84,13 +84,14 @@ export function Sidebar() {
                             key={item.name}
                             href={item.href}
                             className={cn(
-                                'flex items-center space-x-3 rounded-lg px-3 py-2.5 sm:py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground touch-manipulation',
+                                'flex items-center space-responsive-x rounded-lg px-3 py-3 sm:py-2.5 text-responsive-sm font-medium transition-all duration-200 touch-target mobile-nav-item desktop-hover',
+                                'hover:bg-accent hover:text-accent-foreground active:scale-95',
                                 isActive
                                     ? 'bg-accent text-accent-foreground'
                                     : 'text-muted-foreground'
                             )}
                         >
-                            <item.icon className="h-5 w-5 flex-shrink-0" />
+                            <item.icon className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                             <span className="truncate">{item.name}</span>
                         </Link>
                     )
@@ -98,29 +99,29 @@ export function Sidebar() {
             </nav>
 
             {/* Create Post Button */}
-            <div className="p-3 sm:p-4">
-                <Button className="w-full touch-manipulation" size="lg">
-                    <Plus className="mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Create Post</span>
-                    <span className="sm:hidden">Post</span>
+            <div className="p-responsive">
+                <Button className="w-full touch-target desktop-hover" size="lg">
+                    <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden sm:inline text-responsive-sm">Create Post</span>
+                    <span className="sm:hidden text-responsive-sm">Post</span>
                 </Button>
             </div>
 
             {/* User Profile */}
             {userProfile && (
-                <div className="border-t p-3 sm:p-4">
-                    <div className="flex items-center space-x-3">
-                        <Avatar className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
+                <div className="border-t p-responsive safe-area-inset-bottom">
+                    <div className="flex items-center space-responsive-x">
+                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                             <AvatarImage src={userProfile.avatar || undefined} />
-                            <AvatarFallback className="text-xs sm:text-sm">
+                            <AvatarFallback className="text-responsive-sm">
                                 {userProfile.display_name?.charAt(0) || userProfile.username?.charAt(0) || 'U'}
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
+                            <p className="text-responsive-sm font-medium truncate">
                                 {userProfile.display_name || userProfile.username}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate">
+                            <p className="text-responsive-xs text-muted-foreground truncate">
                                 @{userProfile.username}
                             </p>
                         </div>
