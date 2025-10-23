@@ -9,10 +9,12 @@ import {
   Heart, 
   Download,
   Play,
-  Pause
+  Pause,
+  File
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { MediaViewer } from './media-viewer';
 
 interface MessageBubbleProps {
   message: MessageWithSender;
@@ -29,6 +31,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const [showActions, setShowActions] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showMediaViewer, setShowMediaViewer] = useState(false);
 
   const formatTimestamp = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -47,6 +50,23 @@ export function MessageBubble({
     }
   };
 
+  const handleDownload = async (url: string, filename?: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename || `download-${Date.now()}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  };
+
   const renderMediaContent = () => {
     if (!message.media_url) return null;
 
@@ -58,13 +78,12 @@ export function MessageBubble({
               src={message.media_url}
               alt="Shared image"
               className="max-w-xs rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-              onClick={() => {
-                // TODO: Open image in full screen viewer
-              }}
+              onClick={() => setShowMediaViewer(true)}
             />
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => handleDownload(message.media_url!, `image-${message.id}`)}
               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
             >
               <Download className="h-4 w-4" />
@@ -80,10 +99,12 @@ export function MessageBubble({
               className="rounded-lg cursor-pointer"
               controls
               preload="metadata"
+              onClick={() => setShowMediaViewer(true)}
             />
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => handleDownload(message.media_url!, `video-${message.id}`)}
               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white"
             >
               <Download className="h-4 w-4" />
@@ -121,9 +142,7 @@ export function MessageBubble({
         return (
           <div className="flex items-center space-x-3 bg-gray-100 rounded-lg p-3 max-w-xs">
             <div className="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-medium">
-                {message.media_type?.split('/')[1]?.toUpperCase().slice(0, 3) || 'FILE'}
-              </span>
+              <File className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
@@ -133,7 +152,11 @@ export function MessageBubble({
                 {message.media_size ? `${(message.media_size / 1024 / 1024).toFixed(1)} MB` : 'Unknown size'}
               </p>
             </div>
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => handleDownload(message.media_url!, message.content || `file-${message.id}`)}
+            >
               <Download className="h-4 w-4" />
             </Button>
           </div>
@@ -145,14 +168,15 @@ export function MessageBubble({
   };
 
   return (
-    <div
-      className={cn(
-        "flex items-end space-x-2 group",
-        isOwn ? "flex-row-reverse space-x-reverse" : "flex-row"
-      )}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
-    >
+    <>
+      <div
+        className={cn(
+          "flex items-end space-x-2 group",
+          isOwn ? "flex-row-reverse space-x-reverse" : "flex-row"
+        )}
+        onMouseEnter={() => setShowActions(true)}
+        onMouseLeave={() => setShowActions(false)}
+      >
       {/* Avatar */}
       {showAvatar && !isOwn && (
         <Avatar className="h-8 w-8 flex-shrink-0">
@@ -236,6 +260,22 @@ export function MessageBubble({
           </Button>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Media Viewer */}
+      {showMediaViewer && message.media_url && (message.message_type === 'image' || message.message_type === 'video') && (
+        <MediaViewer
+          isOpen={showMediaViewer}
+          onClose={() => setShowMediaViewer(false)}
+          media={[{
+            id: message.id,
+            url: message.media_url,
+            type: message.message_type,
+            name: message.content || `${message.message_type}-${message.id}`
+          }]}
+          initialIndex={0}
+        />
+      )}
+    </>
   );
 }

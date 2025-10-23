@@ -5,3 +5,6 @@ export { ChatComposer } from './chat-composer';
 export { ChatInterface } from './chat-interface';
 export { TypingIndicator } from './typing-indicator';
 export { PresenceIndicator } from './presence-indicator';
+export { MediaViewer } from './media-viewer';
+export { VoiceRecorder } from './voice-recorder';
+export { FileUploadProgress } from './file-upload-progress';

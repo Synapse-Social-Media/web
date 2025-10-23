@@ -113,7 +113,7 @@ export function ChatWindow({
     return otherParticipant?.user_id;
   };
 
-  const handleSendMessage = async (content: string, mediaUrl?: string, mediaType?: string) => {
+  const handleSendMessage = async (content: string, mediaUrl?: string, mediaType?: string, mediaSize?: number, mediaDuration?: number) => {
     try {
       // Stop typing indicator when sending message
       stopTyping();
@@ -124,14 +124,14 @@ export function ChatWindow({
         'audio/': 'audio'
       };
 
-      let messageType: 'text' | 'image' | 'video' | 'file' | 'audio' = 'text';
+      let messageTypeResult: 'text' | 'image' | 'video' | 'file' | 'audio' = 'text';
       if (mediaUrl && mediaType) {
-        messageType = Object.entries(messageTypeMap).find(([prefix]) => 
+        messageTypeResult = Object.entries(messageTypeMap).find(([prefix]) => 
           mediaType.startsWith(prefix)
         )?.[1] || 'file';
       }
 
-      await sendMessage(content, messageType, mediaUrl, mediaType);
+      await sendMessage(content, messageTypeResult, mediaUrl, mediaType, mediaSize, mediaDuration);
     } catch (error) {
       console.error('Error sending message:', error);
     }

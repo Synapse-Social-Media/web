@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/lib/contexts/theme-context'
 import { AuthProvider } from '@/lib/contexts/auth-context'
+import { NotificationProvider } from '@/lib/contexts/notification-context'
 import { AppShell } from '@/components/layout/app-shell'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -40,10 +41,12 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <AppShell>
-              {children}
-            </AppShell>
-            <Toaster />
+            <NotificationProvider>
+              <AppShell>
+                {children}
+              </AppShell>
+              <Toaster />
+            </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

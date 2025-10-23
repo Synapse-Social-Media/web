@@ -220,6 +220,8 @@
 - [-] 6. Real-time Messaging System
 
 
+
+
   - Build chat interface with message threads
   - Implement real-time message delivery and read receipts
   - Add media sharing in conversations
@@ -248,7 +250,10 @@
   - Create message pagination and history loading
   - _Requirements: 4.1, 4.3, 4.5_
 
-- [ ] 6.3 Add Media Messaging
+- [x] 6.3 Add Media Messaging
+
+
+
   - Implement image and video sharing in chats
   - Create file upload with progress indicators
   - Build media viewer with download functionality
@@ -313,32 +318,45 @@
   - Test story expiration and cleanup functionality
   - _Requirements: 6.1, 6.2_
 
-- [ ] 8. Notification System
+
+
+- [x] 8. Notification System
+
+
   - Build notification center with real-time updates
   - Implement push notifications for web browsers
   - Create notification preferences and settings
+
   - Add notification grouping and management
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 8.1 Create Notification Components
+- [x] 8.1 Create Notification Components
+
   - Build NotificationCenter dropdown with notification list
   - Create NotificationItem for different notification types
   - Implement notification badges and unread counts
   - Add notification sound and visual indicators
   - _Requirements: 7.1, 7.3_
 
+
+
 - [ ] 8.2 Implement Real-time Notifications
   - Set up Supabase real-time subscriptions for notifications
   - Create notification creation triggers for user interactions
   - Implement push notification service for browsers
   - Add notification delivery tracking
+
+
   - _Requirements: 7.1, 7.4_
 
 - [ ] 8.3 Build Notification Settings
   - Create NotificationSettings component with granular controls
   - Implement notification preferences for different interaction types
+
+
   - Add do-not-disturb and quiet hours functionality
   - Build notification history and management
+
   - _Requirements: 7.2, 7.5_
 
 - [ ] 8.4 Add Notification Tests
@@ -347,6 +365,7 @@
   - _Requirements: 7.1, 7.2_
 
 - [ ] 9. Search and Discovery
+
   - Implement user search with autocomplete
   - Build content search with hashtags and keywords
   - Create search result pages with filtering
@@ -397,10 +416,12 @@
   - Build user blocking functionality with UI feedback
   - Create content reporting system with categories
   - Implement privacy controls for posts and profile
+
   - Add message request filtering
   - _Requirements: 9.2, 9.5_
 
 - [ ] 10.3 Add Account Management
+
   - Create account deactivation and deletion flows
   - Implement data export functionality
   - Build password change and security settings

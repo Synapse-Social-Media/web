@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Bell, Menu, Sun, Moon, Monitor } from 'lucide-react'
+import { Search, Menu, Sun, Moon, Monitor } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,8 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/contexts/auth-context'
+import { NotificationCenter } from '@/components/notifications'
 
 interface TopBarProps {
   onMenuClick?: () => void
@@ -55,15 +55,7 @@ export function TopBar({ onMenuClick, showMenuButton = false }: TopBarProps) {
       {/* Right side - Notifications, Theme toggle, User menu */}
       <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
         {/* Notifications - Hidden on very small screens */}
-        <Button variant="ghost" size="icon" className="relative hidden xs:flex touch-target">
-          <Bell className="h-5 w-5" />
-          <Badge 
-            variant="destructive" 
-            className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs flex items-center justify-center"
-          >
-            3
-          </Badge>
-        </Button>
+        <NotificationCenter className="hidden xs:flex" />
 
         {/* Theme Toggle */}
         <DropdownMenu>
