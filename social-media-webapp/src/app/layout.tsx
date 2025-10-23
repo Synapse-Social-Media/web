@@ -42,9 +42,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <NotificationProvider>
-              <AppShell>
-                {children}
-              </AppShell>
+              {children}
               <Toaster />
             </NotificationProvider>
           </AuthProvider>
