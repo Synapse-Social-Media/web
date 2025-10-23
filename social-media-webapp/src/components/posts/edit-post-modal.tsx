@@ -14,7 +14,6 @@ import {
   SelectValue 
 } from '@/components/ui/select'
 import { 
-  X, 
   Globe, 
   Users, 
   Lock,
@@ -62,7 +61,7 @@ export function EditPostModal({
   onOpenChange, 
   onPostUpdated 
 }: EditPostModalProps) {
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
   const [content, setContent] = useState('')
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('public')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -147,9 +146,9 @@ export function EditPostModal({
         <div className="space-y-4">
           <div className="flex gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.avatar || undefined} />
+              <AvatarImage src={userProfile?.avatar || undefined} />
               <AvatarFallback>
-                {user?.display_name?.[0] || user?.username?.[0] || 'U'}
+                {userProfile?.display_name?.[0] || userProfile?.username?.[0] || 'U'}
               </AvatarFallback>
             </Avatar>
             

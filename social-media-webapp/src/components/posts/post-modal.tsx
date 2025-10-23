@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
+
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { PostCard } from './post-card'
 import { CommentSystem } from './comment-system'

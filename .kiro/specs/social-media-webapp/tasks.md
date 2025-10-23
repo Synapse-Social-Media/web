@@ -210,14 +210,19 @@
   - Test infinite scroll and real-time updates
   - _Requirements: 2.1, 3.1_
 
-- [ ] 6. Real-time Messaging System
+- [-] 6. Real-time Messaging System
+
+
   - Build chat interface with message threads
   - Implement real-time message delivery and read receipts
   - Add media sharing in conversations
   - Create group chat functionality
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 6.1 Create Chat Interface Components
+- [x] 6.1 Create Chat Interface Components
+
+
+
   - Build ChatList with conversation previews and search
   - Create ChatWindow with message thread display
   - Implement MessageBubble for different message types
@@ -249,36 +254,49 @@
   - Write tests for real-time message functionality
   - Test media sharing and group chat features
   - _Requirements: 4.1, 4.2_
+-
 
-- [ ] 7. Stories Feature Implementation
+- [x] 7. Stories Feature Implementation
+
+
+
+
   - Create story viewer with full-screen experience
   - Build story creation with camera/gallery integration
   - Implement story expiration and automatic cleanup
   - Add story interactions and view tracking
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 7.1 Build Story Display Components
+- [x] 7.1 Build Story Display Components
+
+
   - Create StoriesBar with horizontal scroll and user avatars
   - Implement StoryViewer with full-screen modal and progress
   - Build StoryRing component with story indicators
   - Add story navigation and auto-advance functionality
   - _Requirements: 6.4_
 
-- [ ] 7.2 Implement Story Creation
+- [x] 7.2 Implement Story Creation
+
+
   - Create StoryComposer with camera and gallery access
   - Build story editing with filters and text overlay
   - Implement story upload with progress tracking
   - Add story privacy settings
   - _Requirements: 6.1_
 
-- [ ] 7.3 Add Story Management
+- [x] 7.3 Add Story Management
+
+
   - Implement automatic story expiration after 24 hours
   - Create story view tracking and analytics
   - Build story deletion functionality
   - Add story reporting features
   - _Requirements: 6.2, 6.3, 6.5_
 
-- [ ] 7.4 Add Story Tests
+- [x] 7.4 Add Story Tests
+
+
   - Write tests for story creation and viewing
   - Test story expiration and cleanup functionality
   - _Requirements: 6.1, 6.2_

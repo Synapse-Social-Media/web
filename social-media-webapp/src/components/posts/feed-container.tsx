@@ -74,7 +74,7 @@ export function FeedContainer({
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [reportPostId, setReportPostId] = useState<string | null>(null)
   const [reportPostUserId, setReportPostUserId] = useState<string | null>(null)
-  const observerRef = useRef<IntersectionObserver>()
+  const observerRef = useRef<IntersectionObserver | null>(null)
   const lastPostElementRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
@@ -234,7 +234,7 @@ export function FeedContainer({
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+        if (entries[0]?.isIntersecting && hasMore && !loadingMore) {
           loadPosts(page + 1)
         }
       },
@@ -280,7 +280,7 @@ export function FeedContainer({
     }
   }
 
-  const handleShare = (postId: string) => {
+  const handleShare = (_postId: string) => {
     // TODO: Implement share functionality
     toast.success('Share functionality coming soon!')
   }

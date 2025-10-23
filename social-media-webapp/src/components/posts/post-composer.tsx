@@ -43,7 +43,7 @@ export function PostComposer({
   placeholder = "What's on your mind?",
   className = ""
 }: PostComposerProps) {
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
   const [content, setContent] = useState('')
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([])
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('public')
@@ -87,7 +87,9 @@ export function PostComposer({
   const removeMediaFile = useCallback((index: number) => {
     setMediaFiles(prev => {
       const newFiles = [...prev]
-      URL.revokeObjectURL(newFiles[index].url)
+      if (newFiles[index]) {
+        URL.revokeObjectURL(newFiles[index].url)
+      }
       newFiles.splice(index, 1)
       return newFiles
     })
@@ -165,7 +167,7 @@ export function PostComposer({
       const { error } = await supabase
         .from('posts')
         .insert({
-          user_id: user.id,
+          user_id: userProfile?.uid || '',
           content: content.trim() || null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null,
           media_types: mediaTypes.length > 0 ? mediaTypes : null,
@@ -209,9 +211,9 @@ export function PostComposer({
       <CardContent className="p-4">
         <div className="flex gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar || undefined} />
+            <AvatarImage src={userProfile?.avatar || undefined} />
             <AvatarFallback>
-              {user?.display_name?.[0] || user?.username?.[0] || 'U'}
+              {userProfile?.display_name?.[0] || userProfile?.username?.[0] || 'U'}
             </AvatarFallback>
           </Avatar>
           

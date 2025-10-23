@@ -19,7 +19,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/lib/contexts/auth-context'
@@ -289,10 +288,10 @@ export function PostCard({
                         muted
                       />
                     )}
-                    {index === 3 && post.media_urls.length > 4 && (
+                    {index === 3 && post.media_urls && post.media_urls.length > 4 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <span className="text-white font-semibold">
-                          +{post.media_urls.length - 4}
+                          +{(post.media_urls?.length || 0) - 4}
                         </span>
                       </div>
                     )}

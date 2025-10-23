@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent } from '@/components/ui/card'
+
 import { Badge } from '@/components/ui/badge'
 import { 
   Heart, 
@@ -55,7 +55,7 @@ interface CommentSystemProps {
 }
 
 export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
   const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
   const [newComment, setNewComment] = useState('')
@@ -159,7 +159,7 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
         .from('comments')
         .insert({
           post_id: postId,
-          user_id: user.id,
+          user_id: userProfile?.uid || '',
           content: newComment.trim()
         })
 
@@ -184,7 +184,7 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
         .from('comments')
         .insert({
           post_id: postId,
-          user_id: user.id,
+          user_id: userProfile?.uid || '',
           parent_comment_id: parentId,
           content: replyContent.trim()
         })
@@ -210,7 +210,7 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
       const { data: existingLike } = await supabase
         .from('likes')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', userProfile?.uid || '')
         .eq('target_id', commentId)
         .eq('target_type', 'comment')
         .single()
@@ -220,7 +220,7 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
         const { error } = await supabase
           .from('likes')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', userProfile?.uid || '')
           .eq('target_id', commentId)
           .eq('target_type', 'comment')
 
@@ -230,7 +230,7 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
         const { error } = await supabase
           .from('likes')
           .insert({
-            user_id: user.id,
+            user_id: userProfile?.uid || '',
             target_id: commentId,
             target_type: 'comment'
           })
@@ -267,7 +267,7 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
 
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const timeAgo = formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })
-    const isOwnComment = user?.id === comment.user_id
+    const isOwnComment = userProfile?.uid === comment.user_id
 
     return (
       <div key={comment.id} className={`${isReply ? 'ml-8 mt-2' : 'mt-4'}`}>
@@ -341,9 +341,9 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
             {replyingTo === comment.id && (
               <div className="mt-3 flex gap-2">
                 <Avatar className="h-6 w-6">
-                  <AvatarImage src={user?.avatar || undefined} />
+                  <AvatarImage src={userProfile?.avatar ?? undefined} />
                   <AvatarFallback>
-                    {user?.display_name?.[0] || user?.username?.[0] || 'U'}
+                    {userProfile?.display_name?.[0] || userProfile?.username?.[0] || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 flex gap-2">
@@ -414,12 +414,12 @@ export function CommentSystem({ postId, className = "" }: CommentSystemProps) {
       </h3>
 
       {/* New comment form */}
-      {user && (
+      {userProfile && (
         <div className="flex gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.avatar || undefined} />
+            <AvatarImage src={userProfile.avatar || undefined} />
             <AvatarFallback>
-              {user.display_name?.[0] || user.username?.[0] || 'U'}
+              {userProfile.display_name?.[0] || userProfile.username?.[0] || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 flex gap-2">
