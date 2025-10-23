@@ -159,6 +159,11 @@ export function useResponsive() {
     width: 0,
     height: 0,
   })
+  const [deviceInfo, setDeviceInfo] = useState({
+    isTouch: false,
+    isLandscape: false,
+    pixelRatio: 1,
+  })
 
   useEffect(() => {
     function handleResize() {
@@ -166,13 +171,22 @@ export function useResponsive() {
         width: window.innerWidth,
         height: window.innerHeight,
       })
+      setDeviceInfo({
+        isTouch: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+        isLandscape: window.innerWidth > window.innerHeight,
+        pixelRatio: window.devicePixelRatio || 1,
+      })
     }
 
     // Set initial size
     handleResize()
 
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
+    }
   }, [])
 
   const isMobile = windowSize.width > 0 && windowSize.width < breakpoints.md
@@ -185,6 +199,7 @@ export function useResponsive() {
 
   return {
     windowSize,
+    deviceInfo,
     isMobile,
     isTablet,
     isDesktop,
@@ -195,6 +210,10 @@ export function useResponsive() {
     // Convenience methods
     isMobileOrTablet: isMobile || isTablet,
     isTabletOrDesktop: isTablet || isDesktop,
+    isTouch: deviceInfo.isTouch,
+    isLandscape: deviceInfo.isLandscape,
+    isPortrait: !deviceInfo.isLandscape,
+    isHighDPI: deviceInfo.pixelRatio > 1,
   }
 }
 

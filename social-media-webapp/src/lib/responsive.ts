@@ -96,6 +96,32 @@ export const responsiveConfig = {
     small: 'min-h-[40px] min-w-[40px]',
     medium: 'min-h-[44px] min-w-[44px]',
     large: 'min-h-[48px] min-w-[48px]'
+  },
+  
+  // Interaction states
+  interaction: {
+    hover: 'hover:bg-accent hover:text-accent-foreground transition-colors duration-200',
+    active: 'active:scale-95 active:bg-accent/50 transition-transform duration-100',
+    focus: 'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2',
+    disabled: 'disabled:opacity-50 disabled:pointer-events-none'
+  },
+  
+  // Animation preferences
+  animation: {
+    reduced: 'motion-reduce:transition-none motion-reduce:animate-none',
+    smooth: 'transition-all duration-200 ease-in-out',
+    fast: 'transition-all duration-100 ease-out',
+    slow: 'transition-all duration-300 ease-in-out'
+  },
+  
+  // Layout utilities
+  layout: {
+    center: 'flex items-center justify-center',
+    stack: 'flex flex-col',
+    row: 'flex flex-row',
+    between: 'flex items-center justify-between',
+    around: 'flex items-center justify-around',
+    stretch: 'flex items-stretch'
   }
 } as const
 
@@ -182,6 +208,43 @@ export const responsive = {
   isTouch: (): boolean => {
     if (typeof window === 'undefined') return false
     return 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  },
+  
+  // Check if device is in landscape mode
+  isLandscape: (): boolean => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth > window.innerHeight
+  },
+  
+  // Check if device is in portrait mode
+  isPortrait: (): boolean => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth <= window.innerHeight
+  },
+  
+  // Get device pixel ratio
+  getPixelRatio: (): number => {
+    if (typeof window === 'undefined') return 1
+    return window.devicePixelRatio || 1
+  },
+  
+  // Check if device has high DPI
+  isHighDPI: (): boolean => {
+    if (typeof window === 'undefined') return false
+    return (window.devicePixelRatio || 1) > 1
+  },
+  
+  // Get safe area insets (for devices with notches)
+  getSafeAreaInsets: () => {
+    if (typeof window === 'undefined') return { top: 0, right: 0, bottom: 0, left: 0 }
+    
+    const computedStyle = getComputedStyle(document.documentElement)
+    return {
+      top: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-top)') || '0'),
+      right: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-right)') || '0'),
+      bottom: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0'),
+      left: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-left)') || '0')
+    }
   }
 }
 

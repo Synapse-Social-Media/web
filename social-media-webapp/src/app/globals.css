@@ -308,6 +308,27 @@
       margin: 0.5rem;
       border-radius: 0.75rem;
     }
+    
+    /* Enhanced mobile scrolling */
+    .mobile-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    
+    /* Mobile-optimized focus states */
+    button:focus-visible, 
+    a:focus-visible, 
+    [role="button"]:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    
+    /* Prevent text selection on touch interfaces */
+    .touch-action {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
   }
   
   /* Tablet-specific improvements */
@@ -380,6 +401,71 @@
     
     .dark-responsive-bg {
       background-color: rgba(0, 0, 0, 0.5);
+    }
+  }
+  
+  /* Touch-specific improvements */
+  @media (hover: none) and (pointer: coarse) {
+    /* Touch device optimizations */
+    .touch-optimized {
+      min-height: 44px;
+      min-width: 44px;
+      touch-action: manipulation;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .no-touch-hover:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Enhanced focus states for touch */
+    button:focus,
+    a:focus,
+    [role="button"]:focus {
+      outline: 3px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+  
+  /* Mouse/trackpad specific improvements */
+  @media (hover: hover) and (pointer: fine) {
+    /* Desktop hover effects */
+    .desktop-hover:hover {
+      transform: translateY(-1px);
+      transition: transform 0.2s ease-in-out;
+    }
+    
+    /* Subtle hover animations */
+    .subtle-hover:hover {
+      opacity: 0.8;
+      transition: opacity 0.2s ease-in-out;
+    }
+  }
+  
+  /* Orientation-specific adjustments */
+  @media (orientation: landscape) and (max-height: 500px) {
+    /* Landscape mobile optimizations */
+    .landscape-compact {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    
+    .landscape-nav {
+      height: 3rem;
+    }
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .high-contrast-border {
+      border-width: 2px;
+      border-color: currentColor;
+    }
+    
+    .high-contrast-focus:focus {
+      outline: 3px solid currentColor;
+      outline-offset: 2px;
     }
   }
 }
