@@ -45,9 +45,9 @@ export function UserCard({
     setIsLoading(true)
     try {
       if (isFollowing) {
-        await onUnfollow?.(user.id)
+        await onUnfollow?.(user.uid)
       } else {
-        await onFollow?.(user.id)
+        await onFollow?.(user.uid)
       }
     } finally {
       setIsLoading(false)
@@ -55,7 +55,7 @@ export function UserCard({
   }
 
   const handleMessageClick = () => {
-    onMessage?.(user.id)
+    onMessage?.(user.uid)
   }
 
   const formatCount = (count: number) => {

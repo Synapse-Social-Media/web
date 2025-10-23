@@ -1,11 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { ChatWithParticipants, MessageWithSender, User } from '@/lib/types/chat';
+import { useEffect, useRef } from 'react';
+import { ChatWithParticipants, User } from '@/lib/types/chat';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
 import { Button } from '@/components/ui/button';
 import { 
   MoreVertical, 
@@ -17,6 +15,11 @@ import {
 } from 'lucide-react';
 import { MessageBubble } from '@/components/chat/message-bubble';
 import { ChatComposer } from '@/components/chat/chat-composer';
+import { TypingIndicator } from '@/components/chat/typing-indicator';
+import { PresenceIndicator } from '@/components/chat/presence-indicator';
+import { useRealTimeMessages } from '@/lib/hooks/use-real-time-messages';
+import { useTypingIndicator } from '@/lib/hooks/use-typing-indicator';
+import { usePresence } from '@/lib/hooks/use-presence';
 import { cn } from '@/lib/utils';
 
 interface ChatWindowProps {
@@ -32,128 +35,56 @@ export function ChatWindow({
   onBack,
   className 
 }: ChatWindowProps) {
-  const [messages, setMessages] = useState<MessageWithSender[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
 
-  useEffect(() => {
-    if (chat.chat_id) {
-      loadMessages();
-      subscribeToMessages();
-    }
-  }, [chat.chat_id]);
+  // Real-time messages hook
+  const {
+    messages,
+    loading,
+    loadingMore,
+    hasMore,
+    error,
+    loadMoreMessages,
+    sendMessage,
+    retry
+  } = useRealTimeMessages({
+    chatId: chat.chat_id,
+    currentUserId: currentUser.uid,
+    enabled: !!chat.chat_id
+  });
+
+  // Typing indicator hook
+  const {
+    hasTypingUsers,
+    typingText,
+    handleInputChange,
+    stopTyping
+  } = useTypingIndicator({
+    chatId: chat.chat_id,
+    currentUserId: currentUser.uid,
+    enabled: !!chat.chat_id
+  });
+
+  // Presence hook
+  const {
+    onlineCount,
+    isUserOnline
+  } = usePresence({
+    chatId: chat.chat_id,
+    currentUserId: currentUser.uid,
+    enabled: !!chat.chat_id
+  });
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
     scrollToBottom();
   }, [messages]);
 
-  const loadMessages = async (before?: number) => {
-    try {
-      if (!before) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
 
-      let query = supabase
-        .from('messages')
-        .select(`
-          *,
-          sender:users!messages_sender_id_fkey (
-            uid,
-            username,
-            display_name,
-            avatar
-          )
-        `)
-        .eq('chat_id', chat.chat_id)
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (before) {
-        query = query.lt('created_at', before);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const messagesWithSender = (data || []).map(msg => ({
-        ...msg,
-        sender: msg.sender
-      }));
-
-      if (before) {
-        setMessages(prev => [...messagesWithSender.reverse(), ...prev]);
-      } else {
-        setMessages(messagesWithSender.reverse());
-      }
-
-      setHasMore((data || []).length === 50);
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
-
-  const subscribeToMessages = () => {
-    const channel = supabase
-      .channel(`messages:${chat.chat_id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `chat_id=eq.${chat.chat_id}`
-        },
-        async (payload) => {
-          // Fetch the complete message with sender info
-          const { data: messageWithSender } = await supabase
-            .from('messages')
-            .select(`
-              *,
-              sender:users!messages_sender_id_fkey (
-                uid,
-                username,
-                display_name,
-                avatar
-              )
-            `)
-            .eq('id', payload.new.id)
-            .single();
-
-          if (messageWithSender) {
-            setMessages(prev => [...prev, {
-              ...messageWithSender,
-              sender: messageWithSender.sender
-            }]);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const loadMoreMessages = () => {
-    if (messages.length > 0 && hasMore && !loadingMore) {
-      loadMessages(messages[0]?.created_at);
-    }
   };
 
   const getChatDisplayName = () => {
@@ -176,36 +107,31 @@ export function ChatWindow({
     return otherParticipant?.user?.avatar;
   };
 
+  const getOtherParticipantId = () => {
+    if (chat.is_group) return null;
+    const otherParticipant = chat.participants.find(p => p.user_id !== currentUser.uid);
+    return otherParticipant?.user_id;
+  };
+
   const handleSendMessage = async (content: string, mediaUrl?: string, mediaType?: string) => {
     try {
-      const messageData = {
-        chat_id: chat.chat_id,
-        sender_id: currentUser.uid,
-        content,
-        message_type: mediaUrl ? (mediaType?.startsWith('image/') ? 'image' : 'file') : 'text',
-        media_url: mediaUrl,
-        media_type: mediaType,
-        created_at: Date.now(),
-        updated_at: Date.now()
+      // Stop typing indicator when sending message
+      stopTyping();
+      
+      const messageTypeMap: Record<string, 'text' | 'image' | 'video' | 'file' | 'audio'> = {
+        'image/': 'image',
+        'video/': 'video',
+        'audio/': 'audio'
       };
 
-      const { error } = await supabase
-        .from('messages')
-        .insert([messageData]);
+      let messageType: 'text' | 'image' | 'video' | 'file' | 'audio' = 'text';
+      if (mediaUrl && mediaType) {
+        messageType = Object.entries(messageTypeMap).find(([prefix]) => 
+          mediaType.startsWith(prefix)
+        )?.[1] || 'file';
+      }
 
-      if (error) throw error;
-
-      // Update chat's last message
-      await supabase
-        .from('chats')
-        .update({
-          last_message: content,
-          last_message_time: Date.now(),
-          last_message_sender: currentUser.uid,
-          updated_at: new Date().toISOString()
-        })
-        .eq('chat_id', chat.chat_id);
-
+      await sendMessage(content, messageType, mediaUrl, mediaType);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -217,6 +143,19 @@ export function ChatWindow({
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
           <p className="text-gray-500">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn("flex items-center justify-center h-full", className)}>
+        <div className="text-center">
+          <p className="text-red-500 mb-2">Failed to load messages</p>
+          <Button onClick={retry} variant="outline" size="sm">
+            Try Again
+          </Button>
         </div>
       </div>
     );
@@ -250,11 +189,26 @@ export function ChatWindow({
           </Avatar>
           
           <div>
-            <h3 className="font-medium">{getChatDisplayName()}</h3>
-            {chat.is_group && (
+            <div className="flex items-center space-x-2">
+              <h3 className="font-medium">{getChatDisplayName()}</h3>
+              {!chat.is_group && getOtherParticipantId() && (
+                <PresenceIndicator 
+                  isOnline={isUserOnline(getOtherParticipantId()!)} 
+                  size="sm"
+                />
+              )}
+            </div>
+            {chat.is_group ? (
               <p className="text-sm text-gray-500">
                 {chat.participants_count} members
+                {onlineCount > 0 && ` • ${onlineCount} online`}
               </p>
+            ) : (
+              getOtherParticipantId() && (
+                <p className="text-sm text-gray-500">
+                  {isUserOnline(getOtherParticipantId()!) ? 'Online' : 'Offline'}
+                </p>
+              )
             )}
           </div>
         </div>
@@ -309,6 +263,12 @@ export function ChatWindow({
           })}
         </div>
         
+        {/* Typing Indicator */}
+        <TypingIndicator 
+          isVisible={hasTypingUsers}
+          text={typingText}
+        />
+        
         <div ref={messagesEndRef} />
       </ScrollArea>
 
@@ -316,6 +276,7 @@ export function ChatWindow({
       <div className="border-t bg-white">
         <ChatComposer
           onSendMessage={handleSendMessage}
+          onTyping={handleInputChange}
           disabled={false}
         />
       </div>

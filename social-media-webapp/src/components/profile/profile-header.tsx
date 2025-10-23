@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Camera, Calendar, MoreHorizontal, UserPlus, UserMinus, MessageCircle, Share } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -9,15 +9,14 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Database } from '@/lib/types/database.types'
+import { useFollow } from '@/lib/hooks/use-follow'
+import { useAuth } from '@/lib/contexts/auth-context'
 
 type User = Database['public']['Tables']['users']['Row']
 
 interface ProfileHeaderProps {
   user: User
   isOwnProfile?: boolean
-  isFollowing?: boolean
-  onFollow?: () => void
-  onUnfollow?: () => void
   onMessage?: () => void
   onEdit?: () => void
 }
@@ -25,21 +24,33 @@ interface ProfileHeaderProps {
 export function ProfileHeader({
   user,
   isOwnProfile = false,
-  isFollowing = false,
-  onFollow,
-  onUnfollow,
   onMessage,
   onEdit
 }: ProfileHeaderProps) {
+  const { user: currentUser } = useAuth()
   const [imageError, setImageError] = useState(false)
-
-  const handleFollowClick = () => {
-    if (isFollowing) {
-      onUnfollow?.()
-    } else {
-      onFollow?.()
+  
+  const {
+    stats,
+    isLoading: followLoading,
+    toggleFollow,
+    refreshStats
+  } = useFollow({
+    userId: user.uid,
+    initialStats: {
+      followers_count: user.followers_count,
+      following_count: user.following_count,
+      is_following: false,
+      is_followed_by: false
     }
-  }
+  })
+
+  // Refresh follow stats when component mounts
+  useEffect(() => {
+    if (!isOwnProfile && currentUser) {
+      refreshStats()
+    }
+  }, [isOwnProfile, currentUser, refreshStats])
 
   const formatCount = (count: number) => {
     if (count >= 1000000) {
@@ -124,11 +135,14 @@ export function ProfileHeader({
               ) : (
                 <>
                   <Button
-                    variant={isFollowing ? "outline" : "default"}
-                    onClick={handleFollowClick}
+                    variant={stats.is_following ? "outline" : "default"}
+                    onClick={toggleFollow}
+                    disabled={followLoading}
                     className="min-w-[100px]"
                   >
-                    {isFollowing ? (
+                    {followLoading ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                    ) : stats.is_following ? (
                       <>
                         <UserMinus className="h-4 w-4 mr-2" />
                         Unfollow
@@ -216,11 +230,11 @@ export function ProfileHeader({
             {/* Stats */}
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-1">
-                <span className="font-semibold">{formatCount(user.following_count)}</span>
+                <span className="font-semibold">{formatCount(stats.following_count)}</span>
                 <span className="text-muted-foreground">Following</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="font-semibold">{formatCount(user.followers_count)}</span>
+                <span className="font-semibold">{formatCount(stats.followers_count)}</span>
                 <span className="text-muted-foreground">Followers</span>
               </div>
               <div className="flex items-center gap-1">

@@ -145,13 +145,20 @@
   - Implement profile settings and privacy controls
   - _Requirements: 1.2, 9.1, 9.3_
 
-- [ ] 4.3 Add Follow System
+- [x] 4.3 Add Follow System
+
+
+
   - Implement follow/unfollow actions with optimistic updates
   - Create followers and following lists with pagination
   - Build user suggestions and discovery features
   - _Requirements: 5.1, 5.2, 5.5_
 
-- [ ] 4.4 Add Profile Tests
+- [x] 4.4 Add Profile Tests
+
+
+
+
   - Write tests for profile components and follow functionality
   - Test image upload and profile editing flows
   - _Requirements: 5.1, 5.2_
@@ -229,7 +236,12 @@
   - Build ChatComposer with emoji picker and file upload
   - _Requirements: 4.1, 4.4, 4.5_
 
-- [ ] 6.2 Implement Real-time Messaging
+- [x] 6.2 Implement Real-time Messaging
+
+
+
+
+
   - Set up Supabase real-time subscriptions for messages
   - Implement message delivery and read status tracking
   - Add typing indicators and online presence

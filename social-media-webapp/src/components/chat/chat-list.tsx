@@ -8,6 +8,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Search, MessageCircle, Users } from 'lucide-react';
+import { useUnreadMessages } from '@/lib/hooks/use-unread-messages';
+import { PresenceIndicator } from '@/components/chat/presence-indicator';
 import { cn } from '@/lib/utils';
 
 interface ChatListProps {
@@ -27,6 +29,17 @@ export function ChatList({
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+
+  // Unread messages hook
+  const {
+    getUnreadCount,
+    hasUnreadMessages,
+    markChatAsRead,
+    totalUnread
+  } = useUnreadMessages({
+    userId: currentUserId,
+    enabled: !!currentUserId
+  });
 
   useEffect(() => {
     loadChats();
@@ -176,7 +189,14 @@ export function ChatList({
       {/* Header */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Messages</h2>
+          <div className="flex items-center space-x-2">
+            <h2 className="text-xl font-semibold">Messages</h2>
+            {totalUnread > 0 && (
+              <Badge variant="destructive" className="text-xs">
+                {totalUnread > 99 ? '99+' : totalUnread}
+              </Badge>
+            )}
+          </div>
           <button
             onClick={onNewChat}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -212,7 +232,13 @@ export function ChatList({
             {filteredChats.map((chat) => (
               <div
                 key={chat.id}
-                onClick={() => onChatSelect(chat)}
+                onClick={() => {
+                  onChatSelect(chat);
+                  // Mark chat as read when selected
+                  if (hasUnreadMessages(chat.chat_id)) {
+                    markChatAsRead(chat.chat_id);
+                  }
+                }}
                 className={cn(
                   "p-4 hover:bg-gray-50 cursor-pointer transition-colors",
                   selectedChatId === chat.chat_id && "bg-blue-50 border-r-2 border-blue-500"
@@ -231,20 +257,42 @@ export function ChatList({
                         )}
                       </AvatarFallback>
                     </Avatar>
-                    {chat.is_group && (
+                    
+                    {/* Unread badge */}
+                    {hasUnreadMessages(chat.chat_id) && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute -top-1 -right-1 text-xs px-1.5 py-0.5 min-w-[1.25rem] h-5 flex items-center justify-center rounded-full"
+                      >
+                        {getUnreadCount(chat.chat_id)}
+                      </Badge>
+                    )}
+                    
+                    {/* Group member count or online indicator */}
+                    {chat.is_group ? (
                       <Badge 
                         variant="secondary" 
                         className="absolute -bottom-1 -right-1 text-xs px-1"
                       >
                         {chat.participants_count}
                       </Badge>
+                    ) : (
+                      <div className="absolute -bottom-1 -right-1">
+                        <PresenceIndicator 
+                          isOnline={false} // TODO: Implement presence for chat list
+                          size="sm"
+                        />
+                      </div>
                     )}
                   </div>
 
                   {/* Chat Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium truncate">
+                      <h3 className={cn(
+                        "font-medium truncate",
+                        hasUnreadMessages(chat.chat_id) && "font-semibold"
+                      )}>
                         {getChatDisplayName(chat)}
                       </h3>
                       <span className="text-xs text-gray-500">
@@ -253,7 +301,12 @@ export function ChatList({
                     </div>
                     
                     {chat.last_message && (
-                      <p className="text-sm text-gray-600 truncate mt-1">
+                      <p className={cn(
+                        "text-sm truncate mt-1",
+                        hasUnreadMessages(chat.chat_id) 
+                          ? "text-gray-900 font-medium" 
+                          : "text-gray-600"
+                      )}>
                         {chat.last_message_sender === currentUserId ? 'You: ' : ''}
                         {chat.last_message}
                       </p>

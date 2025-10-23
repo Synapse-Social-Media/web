@@ -18,12 +18,14 @@ import { createClient } from '@/lib/supabase/client';
 
 interface ChatComposerProps {
   onSendMessage: (content: string, mediaUrl?: string, mediaType?: string) => void;
+  onTyping?: () => void;
   disabled?: boolean;
   placeholder?: string;
 }
 
 export function ChatComposer({ 
   onSendMessage, 
+  onTyping,
   disabled = false,
   placeholder = "Type a message..." 
 }: ChatComposerProps) {
@@ -224,6 +226,7 @@ export function ChatComposer({
               onChange={(e) => {
                 setMessage(e.target.value);
                 adjustTextareaHeight();
+                onTyping?.();
               }}
               onKeyPress={handleKeyPress}
               placeholder={placeholder}

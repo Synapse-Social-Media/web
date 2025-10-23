@@ -1,7 +1,9 @@
 'use client'
 
-import { UserCard } from '@/components/profile'
+import { UserCard, UserSuggestions, FollowList } from '@/components/profile'
 import { Database } from '@/lib/types/database.types'
+import { followService } from '@/lib/services/follow-service'
+import { toast } from 'sonner'
 
 type User = Database['public']['Tables']['users']['Row']
 
@@ -60,27 +62,72 @@ const mockUsers: User[] = [
 ]
 
 export default function UsersPage() {
-  const handleFollow = (userId: string) => {
-    console.log('Following user:', userId)
+  const handleFollow = async (userId: string) => {
+    try {
+      const { error } = await followService.followUser(userId)
+      if (error) {
+        toast.error(error)
+      } else {
+        toast.success('User followed successfully')
+      }
+    } catch (error) {
+      toast.error('Failed to follow user')
+    }
   }
 
-  const handleUnfollow = (userId: string) => {
-    console.log('Unfollowing user:', userId)
+  const handleUnfollow = async (userId: string) => {
+    try {
+      const { error } = await followService.unfollowUser(userId)
+      if (error) {
+        toast.error(error)
+      } else {
+        toast.success('User unfollowed successfully')
+      }
+    } catch (error) {
+      toast.error('Failed to unfollow user')
+    }
   }
 
   const handleMessage = (userId: string) => {
     console.log('Messaging user:', userId)
+    toast.info('Messaging feature coming soon!')
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">User Components Demo</h1>
+          <h1 className="text-3xl font-bold mb-2">Follow System Demo</h1>
           <p className="text-muted-foreground">
-            Showcasing different variants of the UserCard component
+            Showcasing the follow system with user suggestions, follow lists, and user cards
           </p>
         </div>
+
+        {/* User Suggestions */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">User Suggestions</h2>
+          <p className="text-muted-foreground">
+            Discover new users to follow based on mutual connections and interests
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <UserSuggestions limit={5} />
+            <UserSuggestions variant="compact" showHeader={true} limit={8} />
+          </div>
+        </section>
+
+        {/* Follow Lists */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">Follow Lists</h2>
+          <p className="text-muted-foreground">
+            Browse followers and following lists with search and pagination
+          </p>
+          <div className="max-w-2xl">
+            <FollowList 
+              userId="user-1" 
+              initialTab="followers"
+            />
+          </div>
+        </section>
 
         {/* Default Variant */}
         <section className="space-y-4">

@@ -1,3 +1,5 @@
 export { ProfileHeader } from './profile-header'
 export { ProfileTabs } from './profile-tabs'
 export { UserCard } from './user-card'
+export { FollowList } from './follow-list'
+export { UserSuggestions } from './user-suggestions'
