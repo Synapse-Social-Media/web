@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useAuth } from '@/lib/contexts/auth-context'
-import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 interface SecuritySettingsProps {
